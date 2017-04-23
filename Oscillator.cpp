@@ -9,6 +9,8 @@ Oscillator::Oscillator(float aFrequence)
     Amplitude = 1;
     Frequence = aFrequence;
     Phase = 0;
+    SinAmp =  Amplitude*sin(Phase);
+    CosAmp = Amplitude*cos(Phase);
     Enabled = false;
 }
 
@@ -17,6 +19,9 @@ Oscillator::Oscillator(float aFrequence, float aAmplitude, float aPhase)
     Amplitude = aAmplitude;
     Frequence = aFrequence;
     Phase = __correctPhase(aPhase);
+    SinAmp =  Amplitude*sin(Phase);
+    CosAmp = Amplitude*cos(Phase);
+
 }
 
 float Oscillator::__correctPhase(float aPhase)
@@ -70,15 +75,25 @@ void Oscillator::multiply(float Amp)
     return;
 }
 
-float Oscillator::setTick(float aTime)
+float Oscillator::setTick(float aTime, float *sinVal, float *cosVal)
 {
     Time = aTime;
-    Value = Amplitude * sin(PI2 * Frequence * Time + Phase);
-    SinComp = (Amplitude*sin(Phase)) *cos(PI2 * Frequence * Time);
-    CosComp = (Amplitude*cos(Phase)) *sin(PI2 * Frequence * Time);
+    float t = PI2 * Frequence * Time;
+
+    Value = Amplitude * sin(t + Phase);
+    SinComp = SinAmp *cos(t);
+    CosComp = CosAmp *sin(t);
+    *sinVal = SinComp;
+    *cosVal = CosComp;
 
     emit valueChanged(Value);
     return(Value);
+
+}
+float Oscillator::setTick(float aTime)
+{
+    float a,b;
+    return(setTick(aTime,&a,&b));
 }
 
 void Oscillator::setParam(float f, float a, float p, bool e)
@@ -87,5 +102,8 @@ void Oscillator::setParam(float f, float a, float p, bool e)
     Amplitude = a;
     Phase = __correctPhase(p);
     Enabled = e;
+    SinAmp =  Amplitude*sin(Phase);
+    CosAmp = Amplitude*cos(Phase);
+
     emit paramChanged(Frequence, Amplitude, Phase, Enabled);
 }

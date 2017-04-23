@@ -21,6 +21,7 @@ signals:
 
 public slots:
     float setTick(float aTime);
+    float setTick(float aTime, float *sinVal, float *cosVal);
     void setParam(float f, float a, float p, bool e);
 
 public:
@@ -32,8 +33,8 @@ public:
     float getAmplitude() { return(Amplitude);}
     float getPhase(bool isDegree = false) { return(Phase * (isDegree ?  (180.0 / PI) : 1) ); }
     float getFrequency() { return(Frequence);}
-    float getSinAmplitude() { return(Amplitude*sin(Phase)); }
-    float getCosAmplitude() { return(Amplitude*cos(Phase)); }
+    float getSinAmplitude() { return(SinAmp); }
+    float getCosAmplitude() { return(CosAmp); }
     bool isEnabled() { return(Enabled); }
 
     float getTime() { return(Time); }
@@ -41,8 +42,8 @@ public:
     float getSinValue() { return(SinComp); }
     float getCosValue() { return(CosComp); }
 
-    void setAmplitude(float aAmplitude) { Amplitude = aAmplitude; }
-    void setPhase(float aPhase, bool isDegree = false) { Phase = __correctPhase( aPhase * (isDegree ?  (PI / 180.0) : 1)); }
+    void setAmplitude(float aAmplitude) { Amplitude = aAmplitude; SinAmp =  Amplitude*sin(Phase); CosAmp = Amplitude*cos(Phase);}
+    void setPhase(float aPhase, bool isDegree = false) { Phase = __correctPhase( aPhase * (isDegree ?  (PI / 180.0) : 1)); SinAmp =  Amplitude*sin(Phase); CosAmp = Amplitude*cos(Phase); }
     void setFrequency(float aFrequence) { Frequence = aFrequence;}
     void setEnabled(bool e) {Enabled = e;}
 
@@ -66,6 +67,8 @@ private:
     float Value;
     float SinComp;
     float CosComp;
+    float SinAmp;
+    float CosAmp;
 };
 
 

@@ -14,7 +14,7 @@ class OscillatorControl : public QWidget
     Q_OBJECT
 public:
     explicit OscillatorControl(QWidget *parent = 0);
-     OscillatorControl(const QString aName, QWidget *parent = 0);
+    OscillatorControl(const QString aName, QWidget *parent = 0);
 
      void setColor(QColor c) { theColor = c; __setUptheLabel(); }
      void setParam(float f, float a, float p, bool e);

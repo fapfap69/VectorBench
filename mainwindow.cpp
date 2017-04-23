@@ -8,6 +8,7 @@
 #include <QtCharts/QLineSeries>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QList>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -16,6 +17,14 @@ MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent)
     theScaleRange = 15;
     showSinCosComponents = false;
 
+    colorTable.append(QColor(10,10,10));
+    colorTable.append(QColor(200,0,0));
+    colorTable.append(QColor(0,200,0));
+    colorTable.append(QColor(0,0,200));
+    colorTable.append(QColor(200,200,0));
+    colorTable.append(QColor(200,0,200));
+    colorTable.append(QColor(0,200,200));
+
 
     QFont theFont("Arial",13);
     QColor theColor(0,0,60);
@@ -23,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent)
     palette.setColor(QPalette::WindowText, Qt::white);
     palette.setColor(QPalette::Background, theColor);
 
+
+    // -----------------------
     QWidget *centralW = new QWidget(parent);
     QGridLayout *centralL = new QGridLayout(centralW);
 
@@ -48,70 +59,28 @@ MainWindow::MainWindow(QWidget *parent) :  QMainWindow(parent)
     co->setFont(theFont);
     co->setCheckState(Qt::Unchecked);
     maincontrol->addWidget(co);
-
     centralL->addLayout(maincontrol,0,1);
 
-
     primo = new Signal(this);
-    Oscillator *osc;
-
-    int i;
-    osc = new Oscillator(1,10,0);
-    i = primo->addOscillator("Primo",osc);
-    primo->setOscillatorColor(i,QColor(180,0,0));
-    primo->setOscillatorEnabled(i,true);
-    OscillatorControl *osco1 = new OscillatorControl("Primo",parent);
-    osco1->setColor(QColor(180,0,0));
-    osco1->setParam(1,10,0, true);
-    connect(osco1, SIGNAL(changeParam(float,float,float,bool)),
-                 osc, SLOT(setParam(float,float,float,bool)));
-
-
-    osc = new Oscillator(1,10,Oscillator::PIh);
-    i = primo->addOscillator("Secondo",osc);
-    primo->setOscillatorColor(i,QColor(0,180,0));
-    OscillatorControl *osco2 = new OscillatorControl("Seondo",parent);
-    osco2->setColor(QColor(0,180,0));
-    osco2->setParam(1,10,Oscillator::PIh, false);
-    connect(osco2, SIGNAL(changeParam(float,float,float,bool)),
-                     osc, SLOT(setParam(float,float,float,bool)));
-
-    osc = new Oscillator(4,0.1,0);
-    i = primo->addOscillator("Terzo",osc);
-    primo->setOscillatorColor(i,QColor(0,0,180));
-    OscillatorControl *osco3 = new OscillatorControl("Terzo",parent);
-    osco3->setColor(QColor(0,0,180));
-    osco3->setParam(4,0.1,0, false);
-    connect(osco3, SIGNAL(changeParam(float,float,float,bool)),
-                     osc, SLOT(setParam(float,float,float,bool)));
-
-    osc = new Oscillator(8,0.1,0);
-    i = primo->addOscillator("Quarto",osc);
-    primo->setOscillatorColor(i,QColor(140,0,140));
-    OscillatorControl *osco4 = new OscillatorControl("Quarto",parent);
-    osco4->setColor(QColor(140,0,140));
-    osco4->setParam(8,0.1,0, false);
-    connect(osco4, SIGNAL(changeParam(float,float,float,bool)),
-                     osc, SLOT(setParam(float,float,float,bool)));
+    _setUpOneOscillator("Primo",1,10,0,parent);
+    _setUpOneOscillator("Secondo",1,10,0,parent);
+    _setUpOneOscillator("Terzo",1,10,0,parent);
+    _setUpOneOscillator("Quarto",1,10,0,parent);
+    _setUpOneOscillator("Quinto",1,10,0,parent);
 
     centralL->addWidget(primo,1,1);
 
     QHBoxLayout *b2 = new QHBoxLayout();
-    b2->addWidget(osco1);
-    b2->addWidget(osco2);
-    b2->addWidget(osco3);
-    b2->addWidget(osco4);
+    for(int i=0;i<Oscillators.size();i++)
+        b2->addWidget(Oscillators.at(i));
     centralL->addLayout( b2,2,1);
 
     primo->show();
-    osco1->show();
-    osco2->show();
-    osco3->show();
-    osco4->show();
+    for(int i=0;i<Oscillators.size();i++)
+        Oscillators.at(i)->show();
 
     centralW->setLayout(centralL);
     setCentralWidget(centralW);
-
 
     connect(sp, SIGNAL(valueChanged(int)), primo, SLOT(setScaleRange(int)));
     connect(co, SIGNAL(stateChanged(int)), primo, SLOT(setShowComponents(int)));
@@ -131,4 +100,20 @@ void MainWindow::__changeTheRange(int range)
 void MainWindow::__changeTheShow(int)
 {
 
+}
+
+void MainWindow::_setUpOneOscillator(QString Name, float freq, float ampl, float phas, QWidget *parent)
+{
+    Oscillator *osc;
+    OscillatorControl *oscont;
+    int i;
+    osc = new Oscillator(freq,ampl,phas);
+    i = primo->addOscillator(Name,osc);
+    primo->setOscillatorColor(i,colorTable.at(i));
+    primo->setOscillatorEnabled(i,false);
+    oscont = new OscillatorControl(Name,parent);
+    oscont->setColor(colorTable.at(i));
+    oscont->setParam(freq,ampl,phas,false);
+    connect(oscont, SIGNAL(changeParam(float,float,float,bool)),osc, SLOT(setParam(float,float,float,bool)));
+    Oscillators.append(oscont);
 }
